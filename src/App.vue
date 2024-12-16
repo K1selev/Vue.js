@@ -1,20 +1,29 @@
 <template>
   <div id="app">
-    <div class="price-list">
-      <h1>Услуги</h1>
-      <div
-        v-for="(service, index) in services"
-        :key="service.name"
-        :class="['service-item', { selected: service.selected, inactive: !service.selected }]"
-        @click="toggleSelection(index)"
-      >
-        <div class="service-info">
-          <h3>{{ service.name }}</h3>
-          <p class="price">${{ formatPrice(service.price) }}</p>
+    <div class="container">
+      <h1>Список услуг</h1>
+      <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input 
+          type="text" 
+          v-model="searchQuery" 
+          placeholder="Поиск услуг..." 
+          class="search-box"
+        />
+      </div>
+      <div class="services">
+        <div 
+          v-for="service in filteredServices" 
+          :key="service.id" 
+          :class="['service-item', { active: selectedServices.includes(service.id), inactive: !selectedServices.includes(service.id) }]"
+          @click="toggleService(service.id)"
+        >
+          <span class="service-name">{{ service.name }}</span>
+          <span class="service-price">{{ service.price.toFixed(2) }} $</span>
         </div>
       </div>
       <div class="total">
-        <h2>Итого: ${{ formatPrice(totalSum) }}</h2>
+        <h2>Итоговая сумма: {{ totalPrice.toFixed(2) }} $</h2>
       </div>
     </div>
   </div>
@@ -22,30 +31,60 @@
 
 <script>
 export default {
-  name: 'App',
   data() {
     return {
+      searchQuery: "",
       services: [
-        { name: 'Веб-разработка', price: 300, selected: false },
-        { name: 'Дизайн', price: 400, selected: false },
-        { name: 'Интеграция', price: 250, selected: false },
-        { name: 'Обучение', price: 220, selected: false }
-      ]
+        { id: 1, name: "Веб-разработка", price: 300 },
+        { id: 2, name: "Дизайн", price: 400 },
+        { id: 3, name: "Интеграция", price: 250 },
+        { id: 4, name: "Обучение", price: 220 },
+        { id: 5, name: "Техническая поддержка", price: 150 },
+        { id: 6, name: "SEO-оптимизация", price: 500 },
+        { id: 7, name: "Мобильная разработка", price: 800 },
+        { id: 8, name: "Аудит безопасности", price: 600 },
+        { id: 9, name: "Сопровождение проектов", price: 300 },
+        { id: 10, name: "Консультация по UX/UI", price: 200 },
+        { id: 11, name: "Написание документации", price: 180 },
+        { id: 12, name: "Контент-менеджмент", price: 400 },
+        { id: 13, name: "QA-тестирование", price: 350 },
+        { id: 14, name: "DevOps-настройка", price: 700 },
+        { id: 15, name: "Администрирование серверов", price: 450 },
+        { id: 16, name: "Перевод веб-контента", price: 100 },
+        { id: 17, name: "Автоматизация бизнес-процессов", price: 900 },
+        { id: 18, name: "Оптимизация производительности", price: 550 },
+        { id: 19, name: "Обучение персонала", price: 250 },
+        { id: 20, name: "Разработка чат-ботов", price: 650 },
+        { id: 21, name: "Настройка аналитики", price: 300 },
+        { id: 22, name: "Брендинг", price: 450 },
+        { id: 23, name: "UI прототипирование", price: 280 },
+        { id: 24, name: "Разработка e-commerce сайтов", price: 1200 },
+        { id: 25, name: "Оптимизация конверсии", price: 320 }
+      ],
+      selectedServices: []
     };
   },
   computed: {
-    totalSum() {
-      return this.services.reduce((sum, service) => {
-        return service.selected ? sum + service.price : sum;
-      }, 0);
+    filteredServices() {
+      return this.services.filter((service) =>
+        service.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
+    totalPrice() {
+      return this.services
+        .filter((service) => this.selectedServices.includes(service.id))
+        .reduce((sum, service) => sum + service.price, 0);
     }
   },
   methods: {
-    toggleSelection(index) {
-      this.services[index].selected = !this.services[index].selected;
-    },
-    formatPrice(price) {
-  return price.toFixed(2); // Форматируем цену с двумя знаками после запятой
+    toggleService(serviceId) {
+      if (this.selectedServices.includes(serviceId)) {
+        this.selectedServices = this.selectedServices.filter(
+          (id) => id !== serviceId
+        );
+      } else {
+        this.selectedServices.push(serviceId);
+      }
     }
   }
 };
@@ -66,59 +105,67 @@ export default {
   align-items: center;
 }
 
-.price-list {
-  text-align: center;
+.container {
   max-width: 600px;
   margin: 0 auto;
-  padding: 20px;
+  text-align: center;
 }
 
 h1 {
-  font-size: 2rem;
+  margin-bottom: 40px;
+  color: #fff;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 20px;
+  position: relative;
+}
+
+.search-icon {
+  position: absolute;
+  left: 10px;
+  font-size: 16px;
+  color: #333;
+}
+
+.search-box {
+  padding: 10px 10px 10px 30px;
+  font-size: 16px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.services {
+  /* margin: 20px 0; */
 }
 
 .service-item {
-  background-color: #f1f1f1;
-  margin: 10px 0;
-  padding: 20px;
-  width: 100%;
-  max-width: 500px;
-  cursor: pointer;
-  transition: none;
-  text-align: left;
-  color: white;
-}
-
-.service-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding: 10px;
+  margin: 10px 0;
+  background: #e75684;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.3s;
 }
 
-.service-item h3 {
-  font-size: 1.25rem;
-  margin: 0;
+.service-item.active {
+  background: #8ebf74;
 }
 
-.price {
-  font-size: 1rem;
-  margin: 0;
-}
-
-.service-item.selected {
-  background-color: #8ebf74;
-}
-
-.service-item.inactive {
-  background-color: #e75684;
-}
-.service-item:hover {
-  transform: scale(1.05);
-}
-.total {
-  margin-top: 30px;
-  font-size: 1.5rem;
+.service-name {
   font-weight: bold;
+}
+
+.total {
+  font-size: 18px;
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 0px;
 }
 </style>
